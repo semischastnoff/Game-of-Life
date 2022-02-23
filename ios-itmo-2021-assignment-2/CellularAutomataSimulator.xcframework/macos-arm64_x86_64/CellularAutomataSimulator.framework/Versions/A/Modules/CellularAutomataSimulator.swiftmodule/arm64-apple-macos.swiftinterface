@@ -1,0 +1,244 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.5.1 (swiftlang-1300.0.31.4 clang-1300.0.29.6)
+// swift-module-flags: -target arm64-apple-macos11.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name CellularAutomataSimulator
+import Foundation
+import Swift
+import _Concurrency
+public protocol CellularAutomata {
+  associatedtype State : CellularAutomataSimulator.CellularAutomataState
+  func simulate(_ state: Self.State, generations: Swift.UInt) throws -> Self.State
+}
+public protocol CellularAutomataState {
+  associatedtype Cell : CellularAutomataSimulator.CellProtocol
+  associatedtype SubState : CellularAutomataSimulator.CellularAutomataState
+  init()
+  var viewport: CellularAutomataSimulator.Rect { get set }
+  subscript(_: CellularAutomataSimulator.Point) -> Self.Cell { get set }
+  subscript(_: CellularAutomataSimulator.Rect) -> Self.SubState { get set }
+  mutating func translate(to: CellularAutomataSimulator.Point)
+}
+public struct Size {
+  public let width: Swift.Int
+  public let height: Swift.Int
+  public init(width: Swift.Int, height: Swift.Int)
+}
+public struct Point {
+  public let x: Swift.Int
+  public let y: Swift.Int
+  public init(x: Swift.Int, y: Swift.Int)
+}
+public struct Rect {
+  public var origin: CellularAutomataSimulator.Point
+  public let size: CellularAutomataSimulator.Size
+  public init(origin: CellularAutomataSimulator.Point, size: CellularAutomataSimulator.Size)
+}
+@frozen public enum BinaryCell : Swift.RawRepresentable, CellularAutomataSimulator.CellProtocol, Swift.CustomStringConvertible {
+  case inactive
+  case active
+  public static let `default`: CellularAutomataSimulator.BinaryCell
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public var display: Swift.Character {
+    get
+  }
+  public var description: Swift.String {
+    get
+  }
+  public typealias RawValue = Swift.UInt8
+}
+public typealias Vicinity1D1<Cell> = (Cell, Cell, Cell) where Cell : CellularAutomataSimulator.CellProtocol
+public typealias Vicinity2D1<Cell> = (Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell) where Cell : CellularAutomataSimulator.CellProtocol
+public func totalisticRule(_ r: Swift.UInt32) -> (CellularAutomataSimulator.Vicinity2D1<CellularAutomataSimulator.BinaryCell>) -> CellularAutomataSimulator.BinaryCell
+public func wolframRule(_ code: Swift.UInt8) -> (CellularAutomataSimulator.Vicinity1D1<CellularAutomataSimulator.BinaryCell>) -> CellularAutomataSimulator.BinaryCell
+extension CellularAutomataSimulator.Hashed2DCellularAutomata where Cell == CellularAutomataSimulator.BinaryCell {
+  public static let gameOfLife: CellularAutomataSimulator.Hashed2DCellularAutomata<CellularAutomataSimulator.BinaryCell>
+  convenience public init(totalisticRule rule: Swift.UInt32)
+}
+extension CellularAutomataSimulator.Simple2DCellularAutomaton where Cell == CellularAutomataSimulator.BinaryCell {
+  public static let gameOfLife: CellularAutomataSimulator.Simple2DCellularAutomaton<CellularAutomataSimulator.BinaryCell>
+  public init(totalisticRule rule: Swift.UInt32)
+}
+extension CellularAutomataSimulator.Simple1DCellularAutomaton where Cell == CellularAutomataSimulator.BinaryCell {
+  public init(wolframCode code: Swift.UInt8)
+}
+public struct HashCellularAutomataState<Cell> : CellularAutomataSimulator.CellularAutomataState where Cell : CellularAutomataSimulator.CellProtocol {
+  public typealias SubState = CellularAutomataSimulator.SimpleCellularAutomatonState<Cell>
+  public var viewport: CellularAutomataSimulator.Rect {
+    get
+    set
+  }
+  public init()
+  public mutating func translate(to newOrigin: CellularAutomataSimulator.Point)
+  public subscript(point: CellularAutomataSimulator.Point) -> Cell {
+    get
+    set
+  }
+  public subscript(rect: CellularAutomataSimulator.Rect) -> CellularAutomataSimulator.HashCellularAutomataState<Cell>.SubState {
+    get
+    set
+  }
+}
+extension CellularAutomataSimulator.HashCellularAutomataState : Swift.CustomStringConvertible {
+  public var description: Swift.String {
+    get
+  }
+}
+@_hasMissingDesignatedInitializers final public class Hashed2DCellularAutomata<Cell> : CellularAutomataSimulator.CellularAutomata where Cell : CellularAutomataSimulator.CellProtocol {
+  public typealias State = CellularAutomataSimulator.HashCellularAutomataState<Cell>
+  public typealias SubState = CellularAutomataSimulator.SimpleCellularAutomatonState<Cell>
+  public typealias Vicinity = CellularAutomataSimulator.Vicinity2D1<Cell>
+  final public func simulate(_ state: CellularAutomataSimulator.Hashed2DCellularAutomata<Cell>.State, generations gen: Swift.UInt) throws -> CellularAutomataSimulator.Hashed2DCellularAutomata<Cell>.State
+  @objc deinit
+}
+public struct Simple1DCellularAutomaton<Cell> : CellularAutomataSimulator.CellularAutomata where Cell : CellularAutomataSimulator.CellProtocol {
+  public typealias State = CellularAutomataSimulator.SimpleCellularAutomatonState<Cell>
+  public typealias Vicinity = CellularAutomataSimulator.Vicinity1D1<Cell>
+  public let rule: (CellularAutomataSimulator.Simple1DCellularAutomaton<Cell>.Vicinity) -> Cell
+  public func simulate(_ state: CellularAutomataSimulator.Simple1DCellularAutomaton<Cell>.State, generations: Swift.UInt) throws -> CellularAutomataSimulator.Simple1DCellularAutomaton<Cell>.State
+}
+public struct Simple2DCellularAutomaton<Cell> : CellularAutomataSimulator.CellularAutomata where Cell : CellularAutomataSimulator.CellProtocol {
+  public typealias State = CellularAutomataSimulator.SimpleCellularAutomatonState<Cell>
+  public typealias Cell = CellularAutomataSimulator.Simple2DCellularAutomaton<Cell>.State.Cell
+  public typealias Vicinity = CellularAutomataSimulator.Vicinity2D1<Cell>
+  public let rule: (CellularAutomataSimulator.Simple2DCellularAutomaton<Cell>.Vicinity) -> Cell
+  public func simulate(_ state: CellularAutomataSimulator.Simple2DCellularAutomaton<Cell>.State, generations: Swift.UInt) throws -> CellularAutomataSimulator.Simple2DCellularAutomaton<Cell>.State
+}
+public struct SimpleCellularAutomatonState<Cell> : CellularAutomataSimulator.CellularAutomataState where Cell : CellularAutomataSimulator.CellProtocol {
+  public typealias SubState = CellularAutomataSimulator.SimpleCellularAutomatonState<Cell>
+  public var viewport: CellularAutomataSimulator.Rect {
+    get
+    set
+  }
+  public init()
+  public mutating func translate(to newOrigin: CellularAutomataSimulator.Point)
+  public subscript(point: CellularAutomataSimulator.Point) -> Cell {
+    get
+    set
+  }
+  public subscript(viewport: CellularAutomataSimulator.Rect) -> CellularAutomataSimulator.SimpleCellularAutomatonState<Cell> {
+    get
+    set
+  }
+}
+extension CellularAutomataSimulator.SimpleCellularAutomatonState : Swift.CustomStringConvertible {
+  public var description: Swift.String {
+    get
+  }
+}
+public protocol CellProtocol : Swift.Hashable {
+  static var `default`: Self { get }
+  var display: Swift.Character { get }
+}
+extension CellularAutomataSimulator.Point : Swift.Hashable, Swift.CustomStringConvertible {
+  public static func == (lhs: CellularAutomataSimulator.Point, rhs: CellularAutomataSimulator.Point) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var description: Swift.String {
+    get
+  }
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+extension CellularAutomataSimulator.Point {
+  public static let zero: CellularAutomataSimulator.Point
+  public static func + (lhs: CellularAutomataSimulator.Point, rhs: CellularAutomataSimulator.Point) -> CellularAutomataSimulator.Point
+  public static func - (lhs: CellularAutomataSimulator.Point, rhs: CellularAutomataSimulator.Point) -> CellularAutomataSimulator.Point
+}
+extension CellularAutomataSimulator.Size : Swift.Hashable, Swift.CustomStringConvertible {
+  public static func == (lhs: CellularAutomataSimulator.Size, rhs: CellularAutomataSimulator.Size) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var description: Swift.String {
+    get
+  }
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+extension CellularAutomataSimulator.Size {
+  public static let zero: CellularAutomataSimulator.Size
+  public static func checking(width: Swift.Int, height: Swift.Int) -> CellularAutomataSimulator.Size?
+  public var area: Swift.Int {
+    get
+  }
+}
+extension CellularAutomataSimulator.Rect : Swift.Hashable, Swift.CustomStringConvertible {
+  public static func == (lhs: CellularAutomataSimulator.Rect, rhs: CellularAutomataSimulator.Rect) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var description: Swift.String {
+    get
+  }
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+extension CellularAutomataSimulator.Rect {
+  public static let zero: CellularAutomataSimulator.Rect
+  public static let waypoint: CellularAutomataSimulator.Rect
+  public static let unit: CellularAutomataSimulator.Rect
+  public func contains(_ point: CellularAutomataSimulator.Point) -> Swift.Bool
+  public func contains(_ rect: CellularAutomataSimulator.Rect) -> Swift.Bool
+  public func extending(toInclude point: CellularAutomataSimulator.Point) -> CellularAutomataSimulator.Rect
+  public func extending(toInclude rect: CellularAutomataSimulator.Rect) -> CellularAutomataSimulator.Rect
+  public var area: Swift.Int {
+    get
+  }
+  public var indices: Swift.UnfoldSequence<CellularAutomataSimulator.Point, (CellularAutomataSimulator.Point?, Swift.Bool)> {
+    get
+  }
+  public var horizontalIndices: Swift.Range<Swift.Int> {
+    get
+  }
+  public var verrticalIndices: Swift.Range<Swift.Int> {
+    get
+  }
+  public var topLeft: CellularAutomataSimulator.Point {
+    get
+  }
+  public var topMiddle: CellularAutomataSimulator.Point {
+    get
+  }
+  public var topRight: CellularAutomataSimulator.Point {
+    get
+  }
+  public var middleLeft: CellularAutomataSimulator.Point {
+    get
+  }
+  public var center: CellularAutomataSimulator.Point {
+    get
+  }
+  public var middleRight: CellularAutomataSimulator.Point {
+    get
+  }
+  public var bottomLeft: CellularAutomataSimulator.Point {
+    get
+  }
+  public var bottomMiddle: CellularAutomataSimulator.Point {
+    get
+  }
+  public var bottomRight: CellularAutomataSimulator.Point {
+    get
+  }
+  public var quadrantSize: CellularAutomataSimulator.Size {
+    get
+  }
+  public var topLeftQuadrant: CellularAutomataSimulator.Rect {
+    get
+  }
+  public var topRightQuadrant: CellularAutomataSimulator.Rect {
+    get
+  }
+  public var bottomLeftQuadrant: CellularAutomataSimulator.Rect {
+    get
+  }
+  public var bottomRightQuadrant: CellularAutomataSimulator.Rect {
+    get
+  }
+  public func intersection(with rect: CellularAutomataSimulator.Rect) -> CellularAutomataSimulator.Rect?
+  public func translated(to newOrigin: CellularAutomataSimulator.Point) -> CellularAutomataSimulator.Rect
+}
+extension CellularAutomataSimulator.CellularAutomataState {
+  public mutating func translate(by delta: CellularAutomataSimulator.Point)
+}
+extension CellularAutomataSimulator.BinaryCell : Swift.Sendable {}
